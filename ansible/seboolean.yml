@@ -1,0 +1,9 @@
+--- # Seboolean module example
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Change Boolean for Anonymous writes on the webserver
+      seboolean: name=httpd_anon_write state=no persistent=yes

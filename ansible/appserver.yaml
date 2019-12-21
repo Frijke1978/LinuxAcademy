@@ -1,0 +1,8 @@
+- hosts: RedHats7
+  vars:
+    control_server: frijke2c.mylabserver.com
+  tasks:
+  - name: Update ansible on App Servers
+    yum: pkg=ansible state=latest update_cache=true
+  - name: Querying for Telnet Install
+    yum: pkg=telnet state=present update_cache=true

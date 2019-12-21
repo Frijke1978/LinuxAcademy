@@ -1,0 +1,15 @@
+--- # Setfact module
+- hosts: local
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+    playbook_version: 0.1
+  tasks: 
+    - name: local Variable display
+      set_fact:
+        singlefact: SOMETHING
+    - debug: msg={{ playbook_version }}
+    - debug: msg={{ singlefact }} 
+

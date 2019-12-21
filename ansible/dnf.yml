@@ -1,0 +1,9 @@
+--- # DNF Module
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: install Apache with DNF
+      dnf: name=* state=latest

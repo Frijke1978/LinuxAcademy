@@ -1,0 +1,9 @@
+--- # Unarchive module
+- hosts: all
+  user: ansible
+  sudo: yes
+  conenction: ssh
+  gather_facts: no
+  tasks:
+    - name: copy and unarchive a file
+      unarchive: src=test.tar.gz dest=/home/test/unarchive

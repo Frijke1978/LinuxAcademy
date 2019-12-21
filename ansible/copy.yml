@@ -1,0 +1,8 @@
+--- # Copy example
+- hosts: local 
+  user: ansible
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Copy from the files dir testfiles
+    action: copy src=files/test3.txt dest=/home/test/test3.txt owner=ansible mode=0777 backup=yes

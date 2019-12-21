@@ -1,0 +1,9 @@
+--- # Cron module example
+- hosts: local
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Add acron job to the ansible user
+      cron: name="list dirs" minute="0" hour="1" job="ls -al /var/log > /home/test/cron.log"

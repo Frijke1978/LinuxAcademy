@@ -1,0 +1,11 @@
+--- # Yum module
+- hosts: all
+  user: ansible 
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Install tomcat
+      action: yum name=tomcat state=absent
+   # - name: start tomcat
+   #   shell: systemctl start tomcat

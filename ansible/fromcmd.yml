@@ -1,0 +1,10 @@
+--- # Vars in a cmd passing example
+- hosts: '{{ hosts }}'
+  user: '{{ user }}'
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks: 
+  - name: Install software
+    yum: pkg={{ pkg }} state=latest
+  

@@ -1,0 +1,12 @@
+--- # Shell Module Example
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks: 
+    - name: Executing a rmote commnd - uptime
+      shell: /usr/bin/uptime >> uptime.log
+      args: 
+        chdir: logs/
+        creates: uptime.log

@@ -1,0 +1,9 @@
+--- # Selinux module example
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: changing Se linux config to permissive
+      selinux: policy=targeted state=permissive

@@ -1,0 +1,12 @@
+--- # Delegate to function demo
+- hosts: 127.0.0.1
+  user: ansible
+  sudo: yes
+  connection: ssh
+  tasks:
+  - name: Run a remoteping on the application server
+    command: ping -c 4 frijke3c > /home/ansible/ansible/playbooks/ping.out
+    delegate_to: 127.0.0.1
+  - name: Install a package
+    yum: pkg=tree state=latest
+   

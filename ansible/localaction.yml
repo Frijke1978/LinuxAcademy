@@ -1,0 +1,11 @@
+--- # Local action demo
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks: 
+  - name: Ping App server before we run install
+    local_action: command ping -c 4 frijke3c
+  - name: Install tree on remote server
+    yum: pkg=tree state=latest

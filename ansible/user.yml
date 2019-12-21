@@ -1,0 +1,11 @@
+--- # The user module example
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Add the user called tstapache to the apache web client
+      user: name=tstapache2 state=absent remove=yes
+
+#      user: name=tstapache2 comment="Test Apache 2" shell=/bin/bash

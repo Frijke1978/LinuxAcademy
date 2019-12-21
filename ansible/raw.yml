@@ -1,0 +1,10 @@
+--- # The RAW module
+- hosts: all
+  sudo: yes
+  user: ansible
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Find the system uptime for the 'hosts'above
+      raw: /usr/bin/uptime > uptime.log
+ 

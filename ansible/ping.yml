@@ -1,0 +1,8 @@
+--- # Ping module
+- hosts: all
+  user: ansible
+  connection: ssh
+  gather_facts: no
+  tasks: 
+    - name: use ping
+      ping:

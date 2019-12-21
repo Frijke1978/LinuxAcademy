@@ -1,0 +1,10 @@
+--- # Service Module Example
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  tasks:
+  - name: Install tomcat
+    action: yum name=tomcat state=installed
+  - name: start the webserver
+    service: name=tomcat state=started 

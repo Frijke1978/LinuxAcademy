@@ -1,0 +1,13 @@
+--- # The command Module example 
+- hosts: local 
+  user: ansible
+  connection: ssh
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - name: check for python packages
+      command: /home/test/test.sh
+      args: 
+        chdir: /home/test/
+    
+  

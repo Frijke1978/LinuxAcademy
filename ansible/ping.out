@@ -1,0 +1,9 @@
+PING frijke3c.mylabserver.com (52.214.8.51) 56(84) bytes of data.
+64 bytes from ec2-52-214-8-51.eu-west-1.compute.amazonaws.com (52.214.8.51): icmp_seq=1 ttl=63 time=1.01 ms
+64 bytes from ec2-52-214-8-51.eu-west-1.compute.amazonaws.com (52.214.8.51): icmp_seq=2 ttl=63 time=0.520 ms
+64 bytes from ec2-52-214-8-51.eu-west-1.compute.amazonaws.com (52.214.8.51): icmp_seq=3 ttl=63 time=0.566 ms
+64 bytes from ec2-52-214-8-51.eu-west-1.compute.amazonaws.com (52.214.8.51): icmp_seq=4 ttl=63 time=0.485 ms
+
+--- frijke3c.mylabserver.com ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3001ms
+rtt min/avg/max/mdev = 0.485/0.645/1.012/0.215 ms
