@@ -1,0 +1,7 @@
+git commit
+
+git commit -m "Commit Message"
+
+git commit -a -m "message"
+
+man git_commit

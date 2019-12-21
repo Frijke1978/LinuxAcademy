@@ -1,0 +1,15 @@
+git push -u <remote> <local branch>
+
+man git-push
+
+example:
+
+git branch readme-updates
+git checkout readme-updates
+
+echo "Be sure to have your SSH key setup and that your public key ( located in ~/.sshid_rsa.pub ) is added to your GitHub account." >> README.md
+
+git commit -a -m "updates README to include info on ssh key"
+
+push -u origin readme-updates
+

@@ -1,0 +1,11 @@
+git branch <branch name>
+creates new branch
+
+git checkout <branch name> 
+Switch to another branch
+
+HEAD
+pointer to the current branch being worked on ( git log / git status to view which branch )
+
+man git-branch
+man git-checkout

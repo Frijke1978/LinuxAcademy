@@ -1,0 +1,9 @@
+git tag -a <tag name> -m <mesage>   ( -a is annotated tag )
+
+git tag ( view all tags of repo )
+
+git tag <tag name> -m <mesage> ( lightweight tag )
+
+git tag -d <tag name>  -d is delete tag )
+
+man git-tag

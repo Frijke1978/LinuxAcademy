@@ -1,0 +1,5 @@
+git config
+
+git config --list
+
+man git-config

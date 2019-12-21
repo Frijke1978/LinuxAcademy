@@ -1,0 +1,12 @@
+git remote -v
+shows the remote servers that are being tracked for the current repo, and their latest stats.
+
+git remote show origin
+
+
+git fetch 
+fetches new commit info down from the remote server for the current repo, does not commit anything to local database
+
+man git-fetch
+
+man git-remote

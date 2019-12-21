@@ -1,0 +1,11 @@
+ansible frijke2c.mylabserver.com -b -m yum -a "name=elinks state=latest"
+
+ansible frijke2c.mylabserver.com -b -m file -a "path=/home/ansible/newfile state=touch"
+
+ansible frijke2c.mylabserver.com -b -m file -a "path=/home/ansible/newfile mode=0400" 
+
+ansible frijke2c.mylabserver.com -b -m file -a "path=/home/ansible/newfile owner=root" 
+
+ansible frijke2c.mylabserver.com -b -m user -a "name=sam"
+
+ansible frijke2c.mylabserver.com -b -m user -a "name=sam append=yes groups=wheel"

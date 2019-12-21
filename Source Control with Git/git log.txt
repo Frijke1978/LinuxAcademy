@@ -1,0 +1,10 @@
+git log
+view git repo history
+
+git log --graph
+
+git log --stat ( --shortstat )
+
+git log --pretty=format:"%h - %an - %ar - %s"
+
+man git-log

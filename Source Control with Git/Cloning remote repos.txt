@@ -1,0 +1,4 @@
+git clone <remote URL>
+
+man git-clone
+

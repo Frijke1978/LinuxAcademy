@@ -1,0 +1,12 @@
+ls .git
+
+COMMIT_EDITMSG ( plein text with commit messages )
+HEAD ( plain text; reference to current brench )
+config ( config of repo ( username and email adres )
+description ( name repo )
+hooks ( contain scripts for automated tasks )
+Index ( keeps track of files in staging area ) link to objects ( database )
+info ( exclude file, what will be ignored )
+logs ( log files off commits or changes of project )
+objects ( database )
+refs ( ref files for folders and branches )

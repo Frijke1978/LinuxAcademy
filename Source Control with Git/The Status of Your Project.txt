@@ -1,0 +1,7 @@
+git status
+
+git status -s
+
+git status -v
+
+man git-status

@@ -1,0 +1,5 @@
+git init /path/to/directory
+
+git init --bare /path/to/directory
+
+-- bare git repo is for larger projects, contains no working directory

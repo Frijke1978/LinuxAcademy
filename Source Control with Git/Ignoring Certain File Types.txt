@@ -1,0 +1,7 @@
+.git/info/exclude
+
+.gitignore
+
+git check-ignore <pattern> ( like *~ )
+
+man gitignore

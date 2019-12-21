@@ -1,0 +1,7 @@
+yum install git
+
+git --version
+
+man git
+
+dnf install git ( On fedora )
