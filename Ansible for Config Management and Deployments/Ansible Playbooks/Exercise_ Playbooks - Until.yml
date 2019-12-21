@@ -1,0 +1,135 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+ 
+
+3. Create a playbook, using the 'UNTIL' concepts from the video:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to ALL servers
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Installs the Apache web server using the appropriate package management module
+
+- Runs a command to verify that the 'systemctl' status command shows the httpd service is running
+
+- Register the result of the above command, using the debug module to display the value captured during each iteration
+
+- This command should run FIVE times with a break of FIVE seconds between each try until the command succeeds OR the fifth loop indicates the service did not start
+
+    [test@tcox3 Playbooks]$ ansible-playbook until.yml
+
+    PLAY [apacheweb] **************************************************************
+
+    TASK: [Installing Apache Web Server] ******************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [Verify Service Status] *************************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [debug var=result] ******************************************************
+    ok: [tcox4.mylabserver.com] => {
+        "var": {
+            "result": {
+                "attempts": 3,
+                "changed": true,
+                "cmd": "systemctl status httpd",
+                "delta": "0:00:00.007014",
+                "end": "2015-11-02 23:34:29.364704",
+                "invocation": {
+                    "module_args": "systemctl status httpd",
+                    "module_name": "shell"
+                },
+                "rc": 0,
+                "start": "2015-11-02 23:34:29.357690",
+                "stderr": "",
+                "stdout": "httpd.service - The Apache HTTP Server\n   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)\n   Active: active (running) since Mon 2015-11-02 23:34:25 UTC; 4s ago\n Main PID: 1701 (httpd)\n   Status: \"Processing requests...\"\n   CGroup: /system.slice/httpd.service\n           |-1701 /usr/sbin/httpd -DFOREGROUND\n           |-1702 /usr/sbin/httpd -DFOREGROUND\n           |-1703 /usr/sbin/httpd -DFOREGROUND\n           |-1704 /usr/sbin/httpd -DFOREGROUND\n           |-1705 /usr/sbin/httpd -DFOREGROUND\n           `-1706 /usr/sbin/httpd -DFOREGROUND\n\nNov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...\nNov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.",
+                "stdout_lines": [
+                    "httpd.service - The Apache HTTP Server",
+                    "   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)",
+                    "   Active: active (running) since Mon 2015-11-02 23:34:25 UTC; 4s ago",
+                    " Main PID: 1701 (httpd)",
+                    "   Status: \"Processing requests...\"",
+                    "   CGroup: /system.slice/httpd.service",
+                    "           |-1701 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-1702 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-1703 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-1704 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-1705 /usr/sbin/httpd -DFOREGROUND",
+                    "           `-1706 /usr/sbin/httpd -DFOREGROUND",
+                    "",
+                    "Nov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...",
+                    "Nov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server."
+                ],
+                "warnings": []
+            }
+        }
+    }
+
+    PLAY RECAP ********************************************************************
+    tcox4.mylabserver.com      : ok=3    changed=2    unreachable=0    failed=0
+
+     
+
+    HERE IS AN EXAMPLE OF WHAT YOUR PLAYBOOK COULD LOOK LIKE:
+
+    --- # UNTIL EXAMPLE
+
+    - hosts: apacheweb
+
+      sudo: yes
+
+      connection: ssh
+
+      user: test
+
+      gather_facts: no
+
+    tasks:
+
+    - name: Installing Apache Web Server
+
+      yum: pkg=httpd state=latest
+
+    - name: Verify Service Status
+
+      shell: systemctl status httpd
+
+      register: result
+
+      until: result.stdout.find(“active (running)”) != -1
+
+      retries: 5
+
+      delay: 5
+
+    - debug: var=result
+
+ 
+
+4. Run the playbook and display the results.

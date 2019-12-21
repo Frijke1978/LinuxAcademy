@@ -1,0 +1,74 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'mysql_user' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Install the required MySQL Python Support Libraries (if needed)
+- Using the appropriate system credentials, create a new user called 'bob', give that user access to ALL databases and tables with ALL privileges EXCEPT Grant
+[test@tcox3 Playbooks]$ vim mysqluser.yml 
+[test@tcox3 Playbooks]$ cat mysqluser.yml 
+--- # MYSQL_USER MODULE DEMO
+- hosts: appserver
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  tasks:
+  - name: Install the MySQL Python Support Library
+    yum: pkg=MySQL-python state=latest
+  - name: Create a new user called BOB and give him all access
+    mysql_user: name=bob password=123password priv=*.*:ALL state=present login_user=root login_password=password123
+ 
+4. Run the playbook and display the results.
+ 
+[test@tcox3 Playbooks]$ ansible-playbook mysqluser.yml 
+ 
+PLAY [appserver] ************************************************************** 
+ 
+GATHERING FACTS *************************************************************** 
+ok: [tcox5.mylabserver.com]
+ 
+TASK: [Install the MySQL Python Support Library] ****************************** 
+ok: [tcox5.mylabserver.com]
+ 
+TASK: [Create a new user called BOB and give him all access] ****************** 
+changed: [tcox5.mylabserver.com]
+ 
+PLAY RECAP ******************************************************************** 
+ 
+tcox5.mylabserver.com      : ok=3    changed=1    unreachable=0    failed=0  
+ 
+[test@tcox5 ~]$ mysql -u bob -p
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 5
+Server version: 5.5.44-MariaDB MariaDB Server
+ 
+Copyright (c) 2000, 2015, Oracle, MariaDB Corporation Ab and others.
+ 
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+ 
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| MyDBTest           |
+| MyNewDB            |
+| mysql              |
+| performance_schema |
++--------------------+
+ 
+5 rows in set (0.00 sec)

@@ -1,0 +1,47 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+3. Create an abitrary configuration file called test.conf.j2 that contains:
+
+- references to at least three variables that are passed in at the command line or from within a playbook
+
+- reference to one variable that can be gathered when remote facts are obtained
+
+- Display the result.
+
+    [test@tcox3 files]$ vim test.conf.j2
+
+    [test@tcox3 files]$ cat test.conf.j2
+
+    # Configuration for our custom widget
+
+      ConnectionType {{ connectionType }}  
+
+      Username {{ userName }}
+
+      Password {{ userPassword }}
+
+      DistributionType {{ ansible_os_family }}
+
+     
+
+    NOTE THAT THIS IS ONE EXAMPLE, YOUR EXAMPLE CAN AND PROBABLY WILL VARY, THIS IS JUST AN EXAMPLE

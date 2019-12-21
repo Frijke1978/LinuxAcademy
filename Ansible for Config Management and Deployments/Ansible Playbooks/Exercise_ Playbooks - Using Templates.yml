@@ -1,0 +1,99 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+3. Create a playbook, using the 'TEMPLATE' concepts from the video:
+
+- Uses local connection
+
+- Logs in to the remote system as 'test' user
+
+- Connects to the localhost
+
+- The playbook runs as 'sudo'
+
+- Sets variables that match those referenced in the previously created template file (see previous exercise)
+
+- Installs the template configuration file created earlier to the /home/test/test.conf file, setting user/group ownership to 'test' and the file permissions 750
+
+    [test@tcox3 files]$ vim test.yml
+
+    [test@tcox3 files]$ cat test.yml
+
+    --- # Testing the J2 Template Module
+
+    - hosts: apacheweb:debian
+
+      connection: ssh
+
+      user: test
+
+      sudo: yes
+
+      gather_facts: yes
+
+      vars:
+
+        userName: test
+
+        userPassword: password123
+
+        connectionType: SFTP
+
+      tasks:
+
+        - name: Install the configuration file customized for the system
+
+          template: src=test.conf.j2 dest=/home/test/test.conf owner=test group=test mode=750
+
+ 
+
+4. Run the playbook and display the results
+
+    [test@tcox3 files]$ ansible-playbook test.yml
+
+     
+
+    PLAY [apacheweb:debian] *******************************************************
+
+     
+
+    GATHERING FACTS ***************************************************************
+
+    ok: [tcox4.mylabserver.com]
+
+    ok: [tcox1.mylabserver.com]
+
+     
+
+    TASK: [Install the configuration file customized for the system] **************
+
+    changed: [tcox1.mylabserver.com]
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox1.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0
+
+    tcox4.mylabserver.com      : ok=2    changed=0    unreachable=0    failed=0

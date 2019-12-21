@@ -1,0 +1,245 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Optimize the playbook created in our previous exercise such that:
+
+- Handlers are in the appropriate section
+
+- The 'raw' module is replaced by one of the other shell modules that allow us to 'register' the output for display
+
+- Register the result of any shell module output for local JSON display with debug statements
+
+    [test@tcox3 Outline]$ vim webserver.yml
+    [test@tcox3 Outline]$ cat webserver.yml
+    --- # Outline to Playbook Translation
+    - hosts: apacheweb
+      user: test
+      sudo: yes
+      gather_facts: no
+      tasks:
+      - name: date/time stamp for when the playbook starts
+        command: /usr/bin/date
+        register: timestamp_start
+      - debug: var=timestamp_start
+      - name: install the apache web server
+        yum: pkg=httpd state=latest
+        notify: Start HTTPD
+      - name: verify that the web service is running
+        command: systemctl status httpd
+        register: result
+        ignore_errors: yes
+      - debug: var=result
+      - name: install client software - telnet
+        yum: pkg=telnet state=latest
+      - name: install client software - lynx
+        yum: pkg=lynx state=latest
+      - name: log all the packages install on the system
+        command: yum list installed
+        register: installed_result
+      - debug: var=installed_result
+      - name: date/time stamp for when the playbook ends
+        command: /usr/bin/date
+        register: timestamp_end
+      - debug: var=timestamp_end
+      handlers:
+      - name: Start HTTPD
+        service: name=httpd state=restarted
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Outline]$ ansible-playbook webserver.yml
+
+    PLAY [apacheweb] **************************************************************
+
+    TASK: [date/time stamp for when the playbook starts] **************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [debug var=timestamp_start] *********************************************
+    ok: [tcox4.mylabserver.com] => {
+        "var": {
+            "timestamp_start": {
+                "changed": true,
+                "cmd": [
+                    "/usr/bin/date"
+                ],
+                "delta": "0:00:00.001476",
+                "end": "2015-11-02 23:55:34.125425",
+                "invocation": {
+                    "module_args": "/usr/bin/date",
+                    "module_name": "command"
+                },
+                "rc": 0,
+                "start": "2015-11-02 23:55:34.123949",
+                "stderr": "",
+                "stdout": "Mon Nov  2 23:55:34 UTC 2015",
+                "stdout_lines": [
+                    "Mon Nov  2 23:55:34 UTC 2015"
+                ],
+                "warnings": []
+            }
+        }
+    }
+
+    TASK: [install the apache web server] *****************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [verify that the web service is running] ********************************
+    failed: [tcox4.mylabserver.com] => {"changed": true, "cmd": ["systemctl", "status", "httpd"], "delta": "0:00:00.010313", "end": "2015-11-02 23:55:38.917295", "rc": 3, "start": "2015-11-02 23:55:38.906982", "warnings": []}
+    stdout: httpd.service - The Apache HTTP Server
+       Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)
+       Active: inactive (dead)
+
+    Nov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...
+    Nov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.
+    Nov 02 23:49:27 tcox4.mylabserver.com systemd[1]: Stopping The Apache HTTP Server...
+    Nov 02 23:49:28 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.
+    Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.
+    Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...
+    Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.
+    Nov 02 23:55:23 tcox4.mylabserver.com systemd[1]: Stopping The Apache HTTP Server...
+    Nov 02 23:55:24 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.
+    ...ignoring
+
+    TASK: [debug var=result] ******************************************************
+    ok: [tcox4.mylabserver.com] => {
+        "var": {
+            "result": {
+                "changed": true,
+                "cmd": [
+                    "systemctl",
+                    "status",
+                    "httpd"
+                ],
+                "delta": "0:00:00.010313",
+                "end": "2015-11-02 23:55:38.917295",
+                "invocation": {
+                    "module_args": "systemctl status httpd",
+                    "module_name": "command"
+                },
+                "rc": 3,
+                "start": "2015-11-02 23:55:38.906982",
+                "stderr": "",
+                "stdout": "httpd.service - The Apache HTTP Server\n   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)\n   Active: inactive (dead)\n\nNov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...\nNov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.\nNov 02 23:49:27 tcox4.mylabserver.com systemd[1]: Stopping The Apache HTTP Server...\nNov 02 23:49:28 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.\nNov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.\nNov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...\nNov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.\nNov 02 23:55:23 tcox4.mylabserver.com systemd[1]: Stopping The Apache HTTP Server...\nNov 02 23:55:24 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.",
+                "stdout_lines": [
+                    "httpd.service - The Apache HTTP Server",
+                    "   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)",
+                    "   Active: inactive (dead)",
+                    "",
+                    "Nov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...",
+                    "Nov 02 23:34:25 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.",
+                    "Nov 02 23:49:27 tcox4.mylabserver.com systemd[1]: Stopping The Apache HTTP Server...",
+                    "Nov 02 23:49:28 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.",
+                    "Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server.",
+                    "Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...",
+                    "Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.",
+                    "Nov 02 23:55:23 tcox4.mylabserver.com systemd[1]: Stopping The Apache HTTP Server...",
+                    "Nov 02 23:55:24 tcox4.mylabserver.com systemd[1]: Stopped The Apache HTTP Server."
+                ],
+                "warnings": []
+            }
+        }
+    }
+
+    TASK: [install client software - telnet] **************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [install client software - lynx] ****************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [log all the packages install on the system] ****************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [debug var=installed_result] ********************************************
+    ok: [tcox4.mylabserver.com] => {
+        "var": {
+            "installed_result": {
+                "changed": true,
+                "cmd": [
+                    "yum",
+                    "list",
+                    "installed"
+                ],
+                "delta": "0:00:00.333644",
+                "end": "2015-11-02 23:55:46.460731",
+                "invocation": {
+                    "module_args": "yum list installed",
+                    "module_name": "command"
+                },
+                "rc": 0,
+                "start": "2015-11-02 23:55:46.127087",
+                "stderr": "",
+                "stdout": "Loaded plugins: fastestmirror\nInstalled Packages\nGConf2.x86_64                         3.2.6-8.el7                      @base    \nImageMagick.x86_64                    6.7.8.9-10.el7
+
+                (((OUTPUT CONCATENATED FOR PACKAGE DISPLAY)))
+
+                    "yum.noarch                            3.4.3-125.el7.centos             @base    ",
+                    "yum-metadata-parser.x86_64            1.1.4-10.el7                     installed",
+                    "yum-plugin-fastestmirror.noarch       1.1.31-29.el7                    @base    ",
+                    "yum-utils.noarch                      1.1.31-29.el7                    @base    ",
+                    "zenity.x86_64                         3.8.0-4.el7                      @base    ",
+                    "zip.x86_64                            3.0-10.el7                       installed",
+                    "zlib.x86_64                           1.2.7-13.el7                     installed"
+                ],
+                "warnings": [
+                    "Consider using yum module rather than running yum"
+                ]
+            }
+        }
+    }
+
+    TASK: [date/time stamp for when the playbook ends] ****************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [debug var=timestamp_end] ***********************************************
+    ok: [tcox4.mylabserver.com] => {
+        "var": {
+            "timestamp_end": {
+                "changed": true,
+                "cmd": [
+                    "/usr/bin/date"
+                ],
+                "delta": "0:00:00.002033",
+                "end": "2015-11-02 23:55:46.652791",
+                "invocation": {
+                    "module_args": "/usr/bin/date",
+                    "module_name": "command"
+                },
+                "rc": 0,
+                "start": "2015-11-02 23:55:46.650758",
+                "stderr": "",
+                "stdout": "Mon Nov  2 23:55:46 UTC 2015",
+                "stdout_lines": [
+                    "Mon Nov  2 23:55:46 UTC 2015"
+                ],
+                "warnings": []
+            }
+        }
+    }
+
+    NOTIFIED: [Start HTTPD] *******************************************************
+    changed: [tcox4.mylabserver.com]
+
+    PLAY RECAP ********************************************************************
+    tcox4.mylabserver.com      : ok=12   changed=8    unreachable=0    failed=0
+

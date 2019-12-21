@@ -1,0 +1,130 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Create a playbook, using the the 'outline' created in our previous exercise
+
+    test@tcox3 Outline]$ vim webserver.original
+    [test@tcox3 Outline]$ cat webserver.original
+    --- # Outline to Playbook Translation
+    - hosts: apacheweb
+      user: test
+      sudo: yes
+      gather_facts: no
+      tasks:
+      - name: date/time stamp for when the playbook starts
+        raw: /usr/bin/date > /home/test/playbook_start.log
+      - name: install the apache web server
+        yum: pkg=httpd state=latest
+      - name: start the web service
+        service: name=httpd state=restarted
+      - name: verify that the web service is running
+        command: systemctl status httpd
+        register: result
+      - debug: var=result
+      - name: install client software - telnet
+        yum: pkg=telnet state=latest
+      - name: install client software - lynx
+        yum: pkg=lynx state=latest
+      - name: log all the packages install on the system
+        raw: yum list installed > /home/test/installed.log
+      - name: date/time stamp for when the playbook ends
+        raw: /usr/bin/date > /home/test/playbook_end.log
+
+ 
+
+    4. Run the playbook and display the results.
+
+    [test@tcox3 Outline]$ ansible-playbook webserver.original
+
+    PLAY [apacheweb] **************************************************************
+
+    TASK: [date/time stamp for when the playbook starts] **************************
+    ok: [tcox4.mylabserver.com]
+
+    TASK: [install the apache web server] *****************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [start the web service] *************************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [verify that the web service is running] ********************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [debug var=result] ******************************************************
+    ok: [tcox4.mylabserver.com] => {
+        "var": {
+            "result": {
+                "changed": true,
+                "cmd": [
+                    "systemctl",
+                    "status",
+                    "httpd"
+                ],
+                "delta": "0:00:00.008202",
+                "end": "2015-11-02 23:51:52.712205",
+                "invocation": {
+                    "module_args": "systemctl status httpd",
+                    "module_name": "command"
+                },
+                "rc": 0,
+                "start": "2015-11-02 23:51:52.704003",
+                "stderr": "",
+                "stdout": "httpd.service - The Apache HTTP Server\n   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)\n   Active: active (running) since Mon 2015-11-02 23:51:52 UTC; 176ms ago\n Main PID: 2019 (httpd)\n   Status: \"Processing requests...\"\n   CGroup: /system.slice/httpd.service\n           |-2019 /usr/sbin/httpd -DFOREGROUND\n           |-2020 /usr/sbin/httpd -DFOREGROUND\n           |-2021 /usr/sbin/httpd -DFOREGROUND\n           |-2022 /usr/sbin/httpd -DFOREGROUND\n           |-2023 /usr/sbin/httpd -DFOREGROUND\n           `-2024 /usr/sbin/httpd -DFOREGROUND\n\nNov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...\nNov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.",
+                "stdout_lines": [
+                    "httpd.service - The Apache HTTP Server",
+                    "   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)",
+                    "   Active: active (running) since Mon 2015-11-02 23:51:52 UTC; 176ms ago",
+                    " Main PID: 2019 (httpd)",
+                    "   Status: \"Processing requests...\"",
+                    "   CGroup: /system.slice/httpd.service",
+                    "           |-2019 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-2020 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-2021 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-2022 /usr/sbin/httpd -DFOREGROUND",
+                    "           |-2023 /usr/sbin/httpd -DFOREGROUND",
+                    "           `-2024 /usr/sbin/httpd -DFOREGROUND",
+                    "",
+                    "Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...",
+                    "Nov 02 23:51:52 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server."
+                ],
+                "warnings": []
+            }
+        }
+    }
+
+    TASK: [install client software - telnet] **************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [install client software - lynx] ****************************************
+    changed: [tcox4.mylabserver.com]
+
+    TASK: [log all the packages install on the system] ****************************
+    ok: [tcox4.mylabserver.com]
+
+    TASK: [date/time stamp for when the playbook ends] ****************************
+    ok: [tcox4.mylabserver.com]
+
+    PLAY RECAP ********************************************************************
+    tcox4.mylabserver.com      : ok=9    changed=5    unreachable=0    failed=0
+

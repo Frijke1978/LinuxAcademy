@@ -1,0 +1,47 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create an outline that lists the installation and configuration process for a NFS server with the following kinds of information (add to this list as needed):
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- Creates a list of 'things we need to know' (variables)
+- List of 'things that need to be done' (tasks)
+ 
+- How do we test (tasks, handlers and/or debug statements)
+[test@tcox3 usecases]$ vim mynfsserver.txt
+[test@tcox3 usecases]$ cat mynfsserver.txt
+- installing and configuring an NFS static content server for web use
+- installation and configuration done with the ansible user
+- the ansible user needs to be sudo
+- gathering facts on
+- connection based on ssh
+ 
+- what do we need to know?
+  - distribution of the system deploying on
+  - the NFS server and client package names
+  - path to the shared file space
+  - the server/group we are installing NFS on
+ 
+- what do we need to do / install?
+  - install the NFS server/client and utilities
+  - export the shared directory (/etc/exports)
+  - add our LA lab network (internal)
+  - configure the filesystem export for read/write on known networks
+    - disable any unknown network or user connectivity
+  - start the NFS service
+  - cron job to backup the filesystem
+  - NFS client installs? - common role
+    - NFS Client /etc/fstab configuration to mount the share on boot...?
+ 
+- test
+  - capture the NFS server service status as a JSON output and register the result
+ 

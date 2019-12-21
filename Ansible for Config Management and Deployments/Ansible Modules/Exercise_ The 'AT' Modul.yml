@@ -1,0 +1,41 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'AT' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Schedule a command to run in 1 minute that lists the contents of /var/log and creates a file in the home directory called at1.log with those contents
+[test@tcox3 Playbooks]$ vim at.yml
+[test@tcox3 Playbooks]$ cat at.yml
+--- # AT MODULE EXAMPLE
+- hosts: apacheweb
+  user: test
+  sudo: sudo
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Example of a future command with the AT module
+      at: command="ls /var/log > /home/test/at1.log" state=absent
+ 
+4. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook at.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+TASK: [Example of a future command with the AT module] ************************
+ok: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+ 

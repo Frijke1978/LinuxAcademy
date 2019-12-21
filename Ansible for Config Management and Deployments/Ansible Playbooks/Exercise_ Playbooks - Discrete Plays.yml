@@ -1,0 +1,103 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Create a playbook, using the 'INCLUDE' concepts from the video:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to ALL servers
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Create a directory called 'plays'. Create a YAML file that runs a task to install one or more packages using the 'yum' module
+
+- Include that file in the playbook so that the created YAML file in the 'plays' directory above runs in the 'tasks' section
+
+- After the included tasks run, verify that the package is installed remotely using the 'raw' module, log the output to a file called 'pkgs.log' in remote /home/test
+
+    [test@tcox3 Playbooks]$ vim include.yml
+
+    [test@tcox3 Playbooks]$ cat include.yml
+
+    --- # FULL INCLUDE TASKS EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      gather_facts: no
+
+      tasks:
+
+        - include: plays/packages.yml
+
+        - name: Verify the telnet package is installed
+
+          raw: yum list installed | grep telnet > /home/test/pkgs.log
+
+     
+
+ 
+
+4. Run the playbook and display the results. 
+
+    [test@tcox3 Playbooks]$ ansible-playbook include.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Install the telnet client] *********************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Install the Lynx web browser] ******************************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Verify the telnet package is installed] ********************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=3    changed=1    unreachable=0    failed=0
+
+ 

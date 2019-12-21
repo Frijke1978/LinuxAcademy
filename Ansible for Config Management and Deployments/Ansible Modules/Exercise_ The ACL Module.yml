@@ -1,0 +1,64 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'acl' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to all the hosts from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Sets user ACL characteristics on a remote file such that for the user called 'user', they have 'read/write' permissions on a file they would otherwise not have
+- Register the results of that command into a variable and use the 'debug' module to display the JSON formatted output of the ACL module changes
+[test@tcox3 Playbooks]$ vim acl.yml
+[test@tcox3 Playbooks]$ cat acl.yml
+--- # ACL MODULE EXAMPLE
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Get ACL Information on the /etc/test.acl.txt remote file
+      acl: name=/etc/test.acl.txt entity=test etype=user permissions="rw" state=absent
+      register: aclinfo
+    - debug: var=aclinfo
+ 
+4. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook acl.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+TASK: [Get ACL Information on the /etc/test.acl.txt remote file] **************
+changed: [tcox4.mylabserver.com]
+ 
+TASK: [debug var=aclinfo] *****************************************************
+ok: [tcox4.mylabserver.com] => {
+    "var": {
+        "aclinfo": {
+            "acl": [
+                "user::rw-",
+                "user:test:rw-",
+                "group::r--",
+                "mask::rw-",
+                "other::r--"
+            ],
+            "changed": true,
+            "invocation": {
+                "module_args": "name=/etc/test.acl.txt entity=test etype=user permissions=\"rw\" state=present",
+                "module_name": "acl"
+            },
+            "msg": "user:test:rw- is present"
+        }
+    }
+}
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0

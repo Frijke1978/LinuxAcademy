@@ -1,0 +1,113 @@
+
+
+1. Run the appropriate ansible command to list all the hosts that are configured on your system for access by the control server. Display the ansible 'hosts' file in active use on the control server so that the hosts and groups are displayed.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+    [test@tcox3 ~]$ cat /etc/ansible/hosts
+
+    [local]
+
+    localhost
+
+     
+
+    [apacheweb]
+
+    tcox4.mylabserver.com
+
+    [appserver]
+
+    tcox5.mylabserver.com
+
+     
+
+2. Create a full Ansible Playbook called 'pause.yml' with the following characteristics, incorporating the PAUSE module, display the playbook once created:
+
+- Connect to one (or a group) of hosts from the list displayed in Step #1 above
+
+- Force the playbook to run with 'sudo' privileges
+
+- Skip gathering facts on the remote system(s)
+
+- Using the appropriate package management module, install HTTPD/Apache on the remote system(s)
+
+- Using the PAUSE Module, Pause the Playbook so that the user has to press enter to continue the run
+
+- Using the appropriate package maangement module, check to see if the 'lynx' browser is installed
+
+    [test@tcox3 Playbooks]$ vim pause.yml
+
+    [test@tcox3 Playbooks]$ cat pause.yml
+
+    --- # The Pause Module
+
+    - hosts: apacheweb
+
+      sudo: yes
+
+      gather_facts: no
+
+      tasks:
+
+      - name: Install HTTPD
+
+        action: yum name=httpd state=installed
+
+      - name: Pausing
+
+        pause:
+          # seconds: 3
+          prompt: Press ENTER to Continue...
+
+      - name: Verify lynx installation
+
+        action: yum name=lynx state=present
+
+ 
+
+3. Execute the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook pause.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Install HTTPD] *********************************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Pausing] ***************************************************************
+
+    [tcox4.mylabserver.com]
+
+    Press ENTER to Continue...:
+
+     
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Verify lynx installation] **********************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=3    changed=0    unreachable=0    failed=0
+
+ 

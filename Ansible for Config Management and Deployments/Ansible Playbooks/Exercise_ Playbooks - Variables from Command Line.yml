@@ -1,0 +1,85 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Create a playbook, using the 'Variables from Command Line' concepts from the video:
+
+- Uses SSH
+
+- Logs in to the remote system as a VARIABLE user
+
+- Connects to one server or group passed in as a VARIABLE
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Installs a package passed in as a VARIABLE
+
+    [test@tcox3 Playbooks]$ vim fromcmdline.yml
+
+    [test@tcox3 Playbooks]$ cat fromcmdline.yml
+
+    --- # VARIABLES AT A COMMAND LINE PASSING EXAMPLE
+
+    - hosts: '{{ hosts }}'
+
+      user: '{{ user }}'
+
+      sudo: yes
+
+      connection: ssh
+
+      gather_facts: no
+
+      tasks:
+
+      - name: Install some software
+
+        yum: pkg={{ pkg }} state=latest
+
+ 
+
+ 
+
+4. Run the playbook and display the results
+
+    [test@tcox3 Playbooks]$ ansible-playbook fromcmdline.yml --extra-vars "hosts=apacheweb user=test pkg=telnet"
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Install some software] *************************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+
+ 

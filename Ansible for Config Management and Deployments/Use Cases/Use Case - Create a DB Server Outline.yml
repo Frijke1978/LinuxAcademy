@@ -1,0 +1,47 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create an outline that lists the installation and configuration process for a MySQL/MariaDB server with the following kinds of information (add to this list as needed):
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- Creates a list of 'things we need to know' (variables)
+- List of 'things that need to be done' (tasks)
+ 
+- How do we test (tasks, handlers and/or debug statements)
+[test@tcox3 usecases]$ vim mydbserver.txt
+[test@tcox3 usecases]$ cat mydbserver.txt
+- Installing and Configuring a MariaDB Server (master)
+- The installation will be done with the ansible user
+- the installation needs to be done with sudo privileges
+- the connection used is ssh
+- gathering of facts needs to be on
+ 
+- What do we need to know?
+  - the package name of the DB server
+  - the group/host of the master server
+  - the directory for installing the db (if not default)
+  - the version of the db
+  - the distribution it is installed on
+ 
+- What needs to be done/installed
+  - install the MariaDB server and utilities
+  - root password install
+    - waitfor the db service to be started
+      - takes place manually after the mysql-secure-installation run
+  - install the mysql/mariadb configuration file (if needed)
+  - copy the mysql/mariadb database backup to the home directory
+  - import the database(s)
+  - add a cron job for nightly backups
+ 
+- Testing the db
+  - run a MYSQL command and register the output as JSON format to determine success
+ 

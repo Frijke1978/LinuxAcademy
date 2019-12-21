@@ -1,0 +1,85 @@
+1. Run the appropriate ansible command to list all the hosts that are configured on your system for access by the control server. Display the ansible 'hosts' file in active use on the control server so that the hosts and groups are displayed.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+[test@tcox3 ~]$ cat /etc/ansible/hosts
+[local]
+localhost
+[apacheweb]
+tcox4.mylabserver.com
+[appserver]
+tcox5.mylabserver.com
+
+2. Edit the previously created 'myfirstplaybook.yml' file from our previous exercises. Create a task section that uses the 'yum' module to install the apache web server on the host(s) indicated in the playbook. Display the file after editing.
+[test@tcox3 Playbooks]$ vim myfirstplaybook.yml
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+    playbook_version: 0.1b
+  vars_files:
+    - conf/copyright.yml
+    - conf/webdefaults.yml
+  tasks:
+    - name: Install Apache Web Server
+      action: yum name=httpd state=installed
+
+3. Run the playbook, after the initial installation of apache, run the playbook a second time to note the differing output.
+[test@tcox3 Playbooks]$ ansible-playbook myfirstplaybook.yml
+
+PLAY [apacheweb] **************************************************************
+
+TASK: [Install Apache Web Server] *********************************************
+changed: [tcox4.mylabserver.com]
+
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=1    unreachable=0    failed=0
+
+[test@tcox3 Playbooks]$ ansible-playbook myfirstplaybook.yml
+
+PLAY [apacheweb] **************************************************************
+
+TASK: [Install Apache Web Server] *********************************************
+ok: [tcox4.mylabserver.com]
+
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+
+4. Add another task to the playbook that uses the 'yum' module to check and see if the 'lynx' package is installed and then display that file.
+[test@tcox3 Playbooks]$ vim myfirstplaybook.yml
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+    playbook_version: 0.1b
+  vars_files:
+    - conf/copyright.yml
+    - conf/webdefaults.yml
+  tasks:
+    - name: Install Apache Web Server
+      action: yum name=httpd state=installed
+    - name: Verify the Lynx Web Browser
+      action: yum name=lynx state=present
+
+5. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook myfirstplaybook.yml
+
+PLAY [apacheweb] **************************************************************
+
+TASK: [Install Apache Web Server] *********************************************
+ok: [tcox4.mylabserver.com]
+
+TASK: [Verify the Lynx Web Browser] *******************************************
+ok: [tcox4.mylabserver.com]
+
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=2    changed=0    unreachable=0    failed=0

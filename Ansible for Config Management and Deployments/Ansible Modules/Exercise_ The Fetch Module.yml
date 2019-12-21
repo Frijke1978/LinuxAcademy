@@ -1,0 +1,93 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+3. Create a playbook, using the 'fetch' module that accomplishes the following:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Copy the remote 'hosts' file from the remote /etc directory into the local directory of /home/test, make sure the local copy is named 'prefix-[hostname]' so it is obvious where it came from
+
+    [test@tcox3 Playbooks]$ vim fetch.yml
+
+    [test@tcox3 Playbooks]$ cat fetch.yml
+
+    --- # FETCH MODULE EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      tasks:
+
+        - name: Copy remote hosts file to control server
+
+          fetch: src=/etc/hosts dest=/home/test/prefix-{{ ansible_hostname }} flat=yes
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook fetch.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    GATHERING FACTS ***************************************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Copy remote hosts file to control server] ******************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0
+
+     
+
+    [test@tcox3 Playbooks]$ ll ../pref*
+
+    -rw-rw-r--. 1 test test 192 Oct  7 15:25 ../prefix-tcox4
+
+ 

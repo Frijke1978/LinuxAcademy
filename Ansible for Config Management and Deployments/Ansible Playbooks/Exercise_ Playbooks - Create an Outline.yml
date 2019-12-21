@@ -1,0 +1,60 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+ 
+
+3. Create an outline for a playbook that lists the following (name it 'webserver.txt'):
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to web servers
+
+- The playbook runs as 'sudo'
+
+- Indicate to capture a pre-task timestamp
+
+- Install the apache web server, telnet client and lynx web browser
+
+- Capture a log of all installed packages on the system
+
+- Indicate to capture a post-task timestamp
+
+    [test@tcox3 Outline]$ vim webserver.txt
+    [test@tcox3 Outline]$ cat webserver.txt
+    - webservers
+    - test user
+    - sudo rights
+
+    - date/time stamp for when the playbook start
+
+    - install the apache web server
+    - start the web service
+
+    - verify that the web service is running
+
+    - install client software
+      - telnet
+      - lynx
+
+    - log all the packages install on the system

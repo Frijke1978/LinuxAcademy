@@ -1,0 +1,44 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'shell' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Execute the remote command 'uptime'. Provide arguments to that command by indicating the 'logs' directory should be changed to, indicate that the command creates a file called 'uptime.log' in that 'logs' directory.
+[test@tcox3 Playbooks]$ vim shell.yml
+[test@tcox3 Playbooks]$ cat shell.yml
+--- # SHELL MODULE EXAMPLE
+- hosts: apacheweb
+  user: test
+  sudo: sudo
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Executing a remote command - uptime
+      shell: /usr/bin/uptime >> uptime.log
+      args:
+        chdir: logs/
+        creates: uptime.log
+ 
+4. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook shell.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+TASK: [Executing a remote command - uptime] ***********************************
+ok: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+ 

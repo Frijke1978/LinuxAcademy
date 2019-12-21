@@ -1,0 +1,57 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@ubuntuvideo ~]$ ansible --version
+ansible 2.0.0
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@ubuntuvideo ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'package' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to ALL ansible servers
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Install the Telnet package
+test@ubuntuvideo:~/Playbooks/Ansible2$ cat package.yml 
+--- # ANSIBLE 2.0 PACKAGE MODULE DEMO
+- hosts: all
+  remote_user: test
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: yes
+  tasks:
+  - name: Install Telnet Client on ALL Distribution Types
+    package: name=telnet state=present
+ 
+4. Run the playbook and display the results.
+ 
+test@ubuntuvideo:~/Playbooks/Ansible2$ ansible-playbook package.yml 
+ 
+PLAY ***************************************************************************
+ 
+TASK [setup] *******************************************************************
+ok: [localhost]
+ok: [tcox5.mylabserver.com]
+ok: [tcox1.mylabserver.com]
+ok: [tcox3.mylabserver.com]
+ok: [tcox4.mylabserver.com]
+ 
+TASK [Install Telnet Client on ALL Distribution Types] *************************
+changed: [localhost]
+changed: [tcox1.mylabserver.com]
+changed: [tcox3.mylabserver.com]
+changed: [tcox4.mylabserver.com]
+changed: [tcox5.mylabserver.com]
+ 
+PLAY RECAP *********************************************************************
+localhost                  : ok=2    changed=1    unreachable=0    failed=0   
+tcox1.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0   
+tcox3.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0   
+tcox4.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0   
+ 
+tcox5.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0 

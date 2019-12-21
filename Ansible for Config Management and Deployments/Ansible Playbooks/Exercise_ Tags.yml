@@ -1,0 +1,127 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Create a playbook, using the 'TAGS' concepts from the video:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to ALL servers
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Using the 'yum' module, install the telnet and lynx packages. Tag that tasks with a label called 'packages'
+
+- Using the 'raw' module, verify that telnet is now installed on the remote server, write the results to the /home/test directory in a file called 'pkg.log'. Tag this task with a label called 'logging'
+
+    [test@tcox3 Playbooks]$ vim tags.yml
+
+    [test@tcox3 Playbooks]$ cat tags.yml
+
+    --- # TAG FUNCTIONALITY EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      gather_facts: no
+
+      tasks:
+
+        - name: Install the telnet and lynx packages
+
+          yum: pkg={{ item }} state=latest
+
+          with_items:
+
+            - telnet
+
+            - lynx
+
+          tags:
+
+            - packages
+
+        - name: Verify that telnet was installed
+
+          raw: yum list installed | grep telnet > /home/test/pkg.log
+
+          tags:
+
+            - logging
+
+ 
+
+ 
+
+4. Run the playbook and display the results. Run the playbook a second time and ONLY run the tag called 'packages'.
+
+    [test@tcox3 Playbooks]$ ansible-playbook tags.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Install the telnet and lynx packages] **********************************
+
+    ok: [tcox4.mylabserver.com] => (item=telnet,lynx)
+
+     
+
+    TASK: [Verify that telnet was installed] **************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=2    changed=0    unreachable=0    failed=0
+
+     
+
+    [test@tcox3 Playbooks]$ ansible-playbook --tag "packages" tags.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Install the telnet and lynx packages] **********************************
+
+    ok: [tcox4.mylabserver.com] => (item=telnet,lynx)
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0

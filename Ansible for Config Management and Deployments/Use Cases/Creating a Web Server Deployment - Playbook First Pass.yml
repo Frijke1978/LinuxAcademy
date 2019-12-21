@@ -1,0 +1,67 @@
+--- # Playbook to create a webserver in usecases folder
+- hosts: frijke3c.mylabserver.com
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  vars:
+    apache_pkg: httpd
+	distribution: redhat
+	apache_version: 2.4
+	apache_dir: /var/www/sample
+	apache_fqdn: frijke3c.mylabserver.com
+  tasks:
+    - name: Install Web Server Package
+	  yum: pkg=httpd state=latest
+	- name: Create the web server directory
+	  file: path=/var/www/sample state=directory mode=644
+	- name: Copy the Apache config file to the remote host
+	  copy: src=files/httpd.conf.template dest=/etc/httpd/conf/httpd.conf owner=root group=root mode=644
+	- name: Create the VHOST.D Directory on the remote host
+	  file: path=/etc/httpd/vhost.d state=directory mode=644
+	- name: Copy and untar the for the site
+	  unarchive: src=files/sitecode.tar.gz dest=/var/www/sample
+	- name: Copy the default vhost config file
+	  copy: sr=files/default.conf.template dest=/etc/httpd/vhost.d/default.conf owner=root group=root mode=644
+	- name: start the webserver
+	  service: name=httpd state=started
+	- name: Test the webserver
+	  shell: curl http://frijke3c.mylabserver.com
+	  register: result
+	- name: Display Result
+	  debug: var=result
+  
+
+
+
+
+
+
+
+> Playbooks
+
+ 
+- What needs to be done
+  - Install the apache webserver on the remote system(s)
+  - create the webserver directory
+  - webserver directory has proper ownership
+  - config of Apache
+    - copy the http config file
+	- set up the vhost directory
+	- add any ssl keys if needed
+	- add the vhost template for the default site
+  - copy the site code to the new directory
+  - start the apache service
+  - add/enable any modules needed
+    - mysql/mariadb
+	- ssl
+	- mod/rewrite
+  - restart the apache service ( or move to the start here )
+  
+- Test
+  - using lynx or telnet, test that the webservice is running
+    - wait for port 80 to be listening
+  - Register output for the service status as JSON on the completion of the
+    playbook
+	
+	

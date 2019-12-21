@@ -1,0 +1,35 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a directory structure using the content directions from the Roles series as follows:
+- Top level 'roles' directory
+- Roles that include 'webservers', 'appservers', 'cachingservers', 'common'
+- Add the appropriate subdirectories so that the automatic include of the 'main.yml' file, if it exists, is included in any master control playbook
+[test@tcox3 ]$ mkdir roles
+[test@tcox3 ]$ cd roles
+[test@tcox3 roles]$ mkdir appservers cachingservers common webservers
+[test@tcox3 roles]$ mkdir appservers/defaults appservers/files appservers/handlers appservers/meta appservers/tasks appservers/templates appservers/vars
+ 
+ 
+ 
+4. List the directory structure of 'webservers' (which should be identical to the remaining).
+[test@tcox3 roles]$ ls -al webservers/
+total 4
+drwxrwxr-x. 9 test test   98 Oct 26 23:43 .
+drwxrwxr-x. 8 test test 4096 Oct 27 21:26 ..
+drwxrwxr-x. 2 test test    6 Oct 24 21:00 defaults
+drwxrwxr-x. 2 test test    6 Oct 24 21:00 files
+drwxrwxr-x. 2 test test   21 Oct 27 20:59 handlers
+drwxrwxr-x. 2 test test    6 Oct 24 21:00 meta
+drwxrwxr-x. 2 test test   21 Oct 27 21:00 tasks
+drwxrwxr-x. 2 test test    6 Oct 24 21:00 templates
+drwxrwxr-x. 2 test test   21 Oct 27 00:26 vars
+ 

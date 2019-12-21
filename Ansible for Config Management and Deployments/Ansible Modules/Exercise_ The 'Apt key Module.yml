@@ -1,0 +1,52 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'apt_key' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to all the hosts from Step #2 above
+- The playbook runs as 'sudo'
+- Gathers remote facts
+- Installs the dependency package 'python-apt'
+- Adds a repository (for example, the Google repository available at http://dl.google.com) as appropriate for the server
+- Adds the key for the repository in the previous step
+[test@tcox3 Playbooks]$ vim aptkey.yml
+[test@tcox3 Playbooks]$ cat aptkey.yml
+--- # APT_REPOSITORY MODULE EXAMPLE/ALSO APT_KEY EXAMPLE
+- hosts: aptserver
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Install a dependency needed for apt_repository
+      apt: pkg=python-apt state=latest
+    - name: Add the key
+      apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub state=present
+    - name: Add the Google Repo for Ubuntu
+      apt_repository: repo='deb http://dl.google.com/linux/deb/ stable main non-free' state=present
+ 
+4. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook aptkey.yml
+ 
+PLAY [aptserver] **************************************************************
+ 
+TASK: [Install a dependency needed for apt_repository] ************************
+ok: [tcox1.mylabserver.com]
+ 
+TASK: [Add the key] ***********************************************************
+ok: [tcox1.mylabserver.com]
+ 
+TASK: [Add the Google Repo for Ubuntu] ****************************************
+ok: [tcox1.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox1.mylabserver.com      : ok=3    changed=3    unreachable=0    failed=0

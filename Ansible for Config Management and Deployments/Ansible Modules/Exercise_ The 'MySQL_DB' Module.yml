@@ -1,0 +1,79 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'mysql_db' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Install the required MySQL Python Support Libraries (if needed)
+- Using the appropriate system credentials, create a database called MyNewDB
+[test@tcox3 Playbooks]$ vim mysqldb.yml 
+[test@tcox3 Playbooks]$ cat mysqldb.yml 
+--- # MYSQL_DB MODULE DEMO
+- hosts: appserver
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  tasks:
+  - name: Install the Python MySQL Support Libraries
+    yum: pkg=MySQL-python state=latest
+  - name: Create a New Test DB called MyNewDB
+    mysql_db: name=MyNewDB state=present login_user=root login_password=password123
+ 
+4. Run the playbook and display the results.
+ 
+[test@tcox3 Playbooks]$ vim mysqldb.yml 
+[test@tcox3 Playbooks]$ cat mysqldb.yml 
+--- # MYSQL_DB MODULE DEMO
+- hosts: appserver
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  tasks:
+  - name: Install the Python MySQL Support Libraries
+    yum: pkg=MySQL-python state=latest
+  - name: Create a New Test DB called MyNewDB
+    mysql_db: name=MyDBTest state=present login_user=root login_password=password123
+ 
+[test@tcox3 Playbooks]$ vim mysqldb.yml 
+[test@tcox3 Playbooks]$ ansible-playbook mysqldb.yml 
+ 
+PLAY [appserver] ************************************************************** 
+ 
+GATHERING FACTS *************************************************************** 
+ok: [tcox5.mylabserver.com]
+ 
+TASK: [Install the Python MySQL Support Libraries] **************************** 
+ok: [tcox5.mylabserver.com]
+ 
+TASK: [Create a New Test DB called MyNewDB] *********************************** 
+changed: [tcox5.mylabserver.com]
+ 
+PLAY RECAP ******************************************************************** 
+ 
+tcox5.mylabserver.com      : ok=3    changed=1    unreachable=0    failed=0 
+ 
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| MyDBTest           |
+| MyNewDB            |
+| mysql              |
+| performance_schema |
++--------------------+
+ 
+5 rows in set (0.00 sec)

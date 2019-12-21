@@ -1,0 +1,110 @@
+
+Exercise Instructions
+Solution
+Mark as Completed
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+3. Create a playbook, using the concepts discussed in the LOOP video:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Defines a list of users within the playbook, using the 'user' module, iterates through that list of users, adding them all to the remote system
+
+    [test@tcox3 Playbooks]$ vim loop.yml
+
+    [test@tcox3 Playbooks]$ cat loop.yml
+
+    --- # LOOP Playbook Example
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      gather_facts: no
+
+      tasks:
+
+        - name: Add a list of users
+
+          user: name={{ item }} state=present
+
+          with_items:
+
+            - user1
+
+            - user2
+
+            - user3
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook loop.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Add a list of users] ***************************************************
+
+    ok: [tcox4.mylabserver.com] => (item=user1)
+
+    ok: [tcox4.mylabserver.com] => (item=user2)
+
+    ok: [tcox4.mylabserver.com] => (item=user3)
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+
+     
+
+    [test@tcox3 Playbooks]$ ssh tcox4
+
+    Last login: Wed Oct 14 15:22:34 2015 from ec2-52-91-231-138.compute-1.amazonaws.com
+
+    [test@tcox4 ~]$ cat /etc/passwd| grep user
+
+    user1:x:1005:1005::/home/user1:/bin/bash
+
+    user2:x:1006:1006::/home/user2:/bin/bash
+
+    user3:x:1007:1007::/home/user3:/bin/bash

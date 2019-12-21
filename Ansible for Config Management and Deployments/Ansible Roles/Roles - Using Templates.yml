@@ -1,0 +1,47 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Copy the template created during our previous exercises to the local role directory for the role you are using (put it into the appropriate directory within the role).
+[test@tcox3 roles]$ ls -al debian_webservers/templates/
+total 4
+drwxrwxr-x. 2 test test  25 Nov 11 03:12 .
+drwxrwxr-x. 9 test test  98 Oct 27 21:22 ..
+-rw-rw-r--. 1 test test 297 Nov 11 03:06 test.conf.j2
+ 
+4. Create a master playbook that does the following to verify the template is used as expected:
+- Runs against one or more of the servers/group in Step #2 above
+- Runs as the ansible user
+- Executes with sudo privileges
+- Uses SSH
+- Runs the role from step #3 
+[test@tcox3 roles]$ cat testweb.yml
+--- # Master Playbook for Web Servers
+- hosts: debian
+  user: test
+  sudo: yes
+  connection: ssh
+  roles:
+    - debian_webservers
+ 
+ 
+5. Execute the playbook, making sure to pass in whatever variables are needed from the template created
+[test@tcox3 roles]$ ansible-playbook testweb.yml --extra-vars "connectionType=FTP userName=test userPassword=password123"
+ 
+PLAY [debian] *****************************************************************
+ 
+GATHERING FACTS ***************************************************************
+ok: [tcox1.mylabserver.com]
+ 
+TASK: [debian_webservers | Install the template configuration file customized for the remote distribution] ***
+changed: [tcox1.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox1.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0

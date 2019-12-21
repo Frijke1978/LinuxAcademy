@@ -1,0 +1,80 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+ 
+
+3. Create a playbook, using the 'WHEN' concepts from the video:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Gathers remote facts
+
+- Installs the 'Apache Web Server' using the appropriate package module
+
+- Each section will determine WHICH Apache package to install based on the value of the fact called 'ansible_os_family' and using the appropriate module for package management
+
+    [test@tcox3 Playbooks]$ vim when.yml
+    [test@tcox3 Playbooks]$ cat when.yml
+    --- # WHEN Playbook Example
+    - hosts: aptserver
+      user: test
+      sudo: yes
+      connection: ssh
+      vars:
+        playbook_type: conditionalexample
+      vars_files:
+        - conf/copyright.yml
+        - conf/webdefaults.yml
+      tasks:
+        - name: Install Apache Appropriate to the Distribution Type (Debian/Ubuntu)
+          command: apt-get -y install apache2
+          when: ansible_os_family == "Debian"
+        - name: Install Apache Appropriate to the Distribution Type (RedHat/CentOS)
+          command: yum -y install httpd
+          when: ansible_os_family == "RedHat"
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook when.yml
+
+    PLAY [aptserver] **************************************************************
+
+    GATHERING FACTS ***************************************************************
+    ok: [tcox1.mylabserver.com]
+
+    TASK: [Install Apache Appropriate to the Distribution Type (Debian/Ubuntu)] ***
+    changed: [tcox1.mylabserver.com]
+
+    TASK: [Install Apache Appropriate to the Distribution Type (RedHat/CentOS)] ***
+    skipping: [tcox1.mylabserver.com]
+
+    PLAY RECAP ********************************************************************
+    tcox1.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0
+

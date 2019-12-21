@@ -1,0 +1,161 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+3. Create a playbook, using the 'service' module that accomplishes the following:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Installs the Apache Web Server
+
+- Inserts a debugging statement indicating the equivalent command just run
+
+- Executes the uptime command on the server or group from Step #2 above, registers the output in a variable
+
+- Inserts a debugging statement displaying the output captured in the variable above
+
+    [test@tcox3 Playbooks]$ vim debug.yml
+
+    [test@tcox3 Playbooks]$ cat debug.yml
+
+    --- # DEBUG MODULE EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      gather_facts: no
+
+      tasks:
+
+        - name: Install web server
+
+          yum: name=httpd state=installed
+
+        - debug: msg="Equivalent of sudo yum install httpd"
+
+        - name: How Long has the system been up?
+
+          shell: /usr/bin/uptime
+
+          register: result
+
+        - debug: var=result
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook debug.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Install web server] ****************************************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [debug msg="Equivalent of sudo yum install httpd"] **********************
+
+    ok: [tcox4.mylabserver.com] => {
+
+        "msg": "Equivalent of sudo yum install httpd"
+
+    }
+
+     
+
+    TASK: [How Long has the system been up?] **************************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [debug var=result] ******************************************************
+
+    ok: [tcox4.mylabserver.com] => {
+
+        "var": {
+
+            "result": {
+
+                "changed": true,
+
+                "cmd": "/usr/bin/uptime",
+
+                "delta": "0:00:00.004499",
+
+                "end": "2015-10-07 14:52:59.002078",
+
+                "invocation": {
+
+                    "module_args": "/usr/bin/uptime",
+
+                    "module_name": "shell"
+
+                },
+
+                "rc": 0,
+
+                "start": "2015-10-07 14:52:58.997579",
+
+                "stderr": "",
+
+                "stdout": " 14:52:59 up 10 min,  1 user,  load average: 0.16, 0.07, 0.06",
+
+                "stdout_lines": [
+
+                    " 14:52:59 up 10 min,  1 user,  load average: 0.16, 0.07, 0.06"
+
+                ],
+
+                "warnings": []
+
+            }
+
+        }
+
+    }
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=4    changed=2    unreachable=0    failed=0
+
+ 

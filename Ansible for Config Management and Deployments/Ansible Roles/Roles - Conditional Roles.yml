@@ -1,0 +1,96 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a master playbook that accomplishes the following:
+- Runs against a server/group of servers defined in your hosts configuration
+- Runs with the user 'test'
+- Executes with 'sudo' privileges
+- Includes the 'webservers' role from our previous examples
+- Only executes the role if the OS is RedHat or CentOS
+[test@tcox3 roles]$ cat webservers.yml
+--- # Master Playbook for Web Servers
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  roles:
+  - { role: webservers, when: "ansible_os_family == 'RedHat'" }
+ 
+ 
+4. Run the playbook and display the results
+[test@tcox3 roles]$ ansible-playbook webservers.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+GATHERING FACTS ***************************************************************
+ok: [tcox4.mylabserver.com]
+ 
+TASK: [When did the ROLE start] ***********************************************
+ok: [tcox4.mylabserver.com]
+ 
+TASK: [redhat_webservers | Install (Red Hat/CentOS) Apache Web Server] ********
+changed: [tcox4.mylabserver.com]
+ 
+TASK: [redhat_webservers | shell systemctl status httpd] **********************
+changed: [tcox4.mylabserver.com]
+ 
+TASK: [webservers | debug var=result] **********************************
+ok: [tcox4.mylabserver.com] => {
+    "var": {
+        "result": {
+            "attempts": 1,
+            "changed": true,
+            "cmd": "systemctl status httpd",
+            "delta": "0:00:00.007100",
+            "end": "2015-11-03 16:04:42.389739",
+            "invocation": {
+                "module_args": "systemctl status httpd",
+                "module_name": "shell"
+            },
+            "rc": 0,
+            "start": "2015-11-03 16:04:42.382639",
+            "stderr": "",
+            "stdout": "httpd.service - The Apache HTTP Server\n   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)\n   Active: active (running) since Tue 2015-11-03 16:04:39 UTC; 2s ago\n Main PID: 2228 (httpd)\n   Status: \"Processing requests...\"\n   CGroup: /system.slice/httpd.service\n           |-2228 /usr/sbin/httpd -DFOREGROUND\n           |-2229 /usr/sbin/httpd -DFOREGROUND\n           |-2230 /usr/sbin/httpd -DFOREGROUND\n           |-2231 /usr/sbin/httpd -DFOREGROUND\n           |-2232 /usr/sbin/httpd -DFOREGROUND\n           `-2233 /usr/sbin/httpd -DFOREGROUND\n\nNov 03 16:04:39 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...\nNov 03 16:04:39 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server.",
+            "stdout_lines": [
+                "httpd.service - The Apache HTTP Server",
+                "   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)",
+                "   Active: active (running) since Tue 2015-11-03 16:04:39 UTC; 2s ago",
+                " Main PID: 2228 (httpd)",
+                "   Status: \"Processing requests...\"",
+                "   CGroup: /system.slice/httpd.service",
+                "           |-2228 /usr/sbin/httpd -DFOREGROUND",
+                "           |-2229 /usr/sbin/httpd -DFOREGROUND",
+                "           |-2230 /usr/sbin/httpd -DFOREGROUND",
+                "           |-2231 /usr/sbin/httpd -DFOREGROUND",
+                "           |-2232 /usr/sbin/httpd -DFOREGROUND",
+                "           `-2233 /usr/sbin/httpd -DFOREGROUND",
+                "",
+                "Nov 03 16:04:39 tcox4.mylabserver.com systemd[1]: Starting The Apache HTTP Server...",
+                "Nov 03 16:04:39 tcox4.mylabserver.com systemd[1]: Started The Apache HTTP Server."
+            ],
+            "warnings": []
+        }
+    }
+}
+ 
+TASK: [webservers | debug Need to install telnet] **********************
+ok: [tcox4.mylabserver.com] => {
+    "msg": "Hello world!"
+}
+ 
+TASK: [debian_webservers | Install (Red Hat/CentOS) Apache Web Server] ********
+skipping: [tcox4.mylabserver.com]
+ 
+TASK: [When did the ROLE end] *************************************************
+ok: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=5    changed=2    unreachable=0    failed=0

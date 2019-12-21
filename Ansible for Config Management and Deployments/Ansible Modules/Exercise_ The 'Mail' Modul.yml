@@ -1,0 +1,46 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'mail' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to all the hosts from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Sends a message from the remote server in Step #2 above to the local test user, over the standard SMTP port indicating that the host is finished deploying the playbook
+[test@tcox3 Playbooks]$ vim mail.yml 
+[test@tcox3 Playbooks]$ cat mail.yml 
+--- # MAIL MODULE EXAMPLE
+- hosts: aptserver
+  user: test
+  connection: ssh
+  tasks:
+    - name: Send an email to test user indicating build completion
+      mail:
+        host='localhost'
+        port=25
+        to="test"
+        subject="Our Host is Finished Deploying"
+        body='System called {{ ansible_hostname }} has been successfully set up'
+ 
+4. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook mail.yml 
+
+PLAY [aptserver] ************************************************************** 
+
+GATHERING FACTS *************************************************************** 
+ok: [tcox1.mylabserver.com]
+
+TASK: [Send an email to test user indicating build completion] **************** 
+ok: [tcox1.mylabserver.com]
+
+PLAY RECAP ******************************************************************** 
+tcox1.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0

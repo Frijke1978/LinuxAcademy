@@ -1,0 +1,66 @@
+1. Run the appropriate ansible command to list all the hosts that are configured on your system for access by the control server. Display the ansible 'hosts' file in active use on the control server so that the hosts and groups are displayed.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+[test@tcox3 ~]$ cat /etc/ansible/hosts
+[local]
+localhost
+
+[apacheweb]
+tcox4.mylabserver.com
+
+[appserver]
+tcox5.mylabserver.com
+
+2. Create a directory called "Playbooks". Change to that directory and create a playbook called 'myfirstplaybook.yml' in that directory. Edit the file (and then display) so that it has the initial comment at the top (formatted appropriately) called "My First Playbook".
+ [test@tcox3 ~]$ mkdir Playbooks
+[test@tcox3 ~]$ cd Playbooks
+[test@tcox3 Playbooks]$ vim myfirstplaybook.yml
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+
+3. Edit the playbook and create a target section that will run against either one of the defined hosts in Step #1 above or a group of hosts in Step #1 above. Save the plabook and execute the appropriate command to run the playbook and display the results.
+[test@tcox3 Playbooks]$ vim myfirstplaybook.yml
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+- hosts: apacheweb
+
+[test@tcox3 Playbooks]$ ansible-playbook -s myfirstplaybook.yml
+
+PLAY [apacheweb] **************************************************************
+
+GATHERING FACTS ***************************************************************
+ok: [tcox4.mylabserver.com]
+
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+
+4. Edit the playbook and add the following to the target section we just created:
+- Force use of SSH connections
+- Always run the playbook as the user 'test'
+- Run this playbook as SUDO by default
+- Do not use the setup module to gather facts from systems during execution
+[test@tcox3 Playbooks]$ vim myfirstplaybook.yml
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+
+5. Display the file and run the playbook, displaying the results of the run.
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+
+[test@tcox3 Playbooks]$ ansible-playbook myfirstplaybook.yml
+
+PLAY [apacheweb] **************************************************************
+
+PLAY RECAP ********************************************************************

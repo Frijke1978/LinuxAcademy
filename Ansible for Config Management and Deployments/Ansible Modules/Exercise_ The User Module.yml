@@ -1,0 +1,100 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+3. Create a playbook, using the 'service' module that accomplishes the following:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Adds a user called 'tst' with the name of 'tst user', using the bash shell as the login shell and appending the 'wheel' group to that user's groups
+
+    [test@tcox3 Playbooks]$ ]vim user.yml
+
+    -bash: ]vim: command not found
+
+    [test@tcox3 Playbooks]$ vim user.yml
+
+    [test@tcox3 Playbooks]$ cat user.yml
+
+    --- # USER MODULE EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      gather_facts: no
+
+      connection: ssh
+
+      tasks:
+
+        - name: Add the user called tstapache to the apache web client
+
+          user: name=tst comment="tst user" shell=/bin/bash groups=wheel append=yes
+		  
+		  
+		  
+--- # The user module example
+- hosts: all
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Add the user called tstapache to the apache web client
+      user: name=tstapache2 state=absent remove=yes
+
+#      user: name=tstapache2 comment="Test Apache 2" shell=/bin/bash
+
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook user.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Add the user called tstapache to the apache web client] ****************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=1    changed=1    unreachable=0    failed=0
+
+ 

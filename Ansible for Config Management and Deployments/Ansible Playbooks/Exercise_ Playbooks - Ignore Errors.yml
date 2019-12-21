@@ -1,0 +1,99 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Create a playbook, using the 'IGNORE_ERRORS' concepts from the video:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to the server/group in Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Run a command on the remote server that will ALWAYS fail
+
+- Indicate that the playbook should continue to run even if errors are generated
+
+- Using the 'yum' module, install the telnet client AFTER the above command to show the playbook continues
+
+    [test@tcox3 Playbooks]$ vim failure.yml
+
+    [test@tcox3 Playbooks]$ cat failure.yml
+
+    --- # ERROR HANDLING EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      gather_facts: no
+
+      tasks:
+
+        - name: Execute a command that will fail
+
+          command: /bin/false
+
+          ignore_errors: yes
+
+        - name: Install telnet
+
+          yum: pkg=telnet state=latest
+
+ 
+
+ 
+
+4. Run the playbook and display the results. 
+
+    [test@tcox3 Playbooks]$ ansible-playbook failure.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Execute a command that will fail] **************************************
+
+    failed: [tcox4.mylabserver.com] => {"changed": true, "cmd": ["/bin/false"], "delta": "0:00:00.001857", "end": "2015-10-28 17:54:49.571966", "rc": 1, "start": "2015-10-28 17:54:49.570109", "warnings": []}
+
+    ...ignoring
+
+     
+
+    TASK: [Install telnet] ********************************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=2    changed=1    unreachable=0    failed=0

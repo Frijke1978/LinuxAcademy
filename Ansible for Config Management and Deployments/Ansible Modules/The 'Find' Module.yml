@@ -1,0 +1,92 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@ubuntuvideo ~]$ ansible --version
+ansible 2.0.0
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@ubuntuvideo ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'find' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Search the remote system /etc directory for the fstab file
+- Capture the resulting file characteristics into a variable called 'results'
+- Output the captured results in JSON format when the playbook is run
+test@ubuntuvideo:~/Playbooks$ vim find.yml 
+test@ubuntuvideo:~/Playbooks$ cat find.yml 
+--- # ANSIBLE 2.0 FIND MODULE EXAMPLE
+- hosts: appserver
+  remote_user: test
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  tasks:
+  - name: Simple find on fstab file
+    find: paths="/etc" patterns="fstab" 
+    register: result
+  - debug: var=result
+ 
+4. Run the playbook and display the results.
+test@ubuntuvideo:~/Playbooks$ ansible-playbook find.yml 
+ 
+PLAY ***************************************************************************
+ 
+TASK [setup] *******************************************************************
+ok: [tcox5.mylabserver.com]
+ 
+TASK [Simple find on fstab file] ***********************************************
+ok: [tcox5.mylabserver.com]
+ 
+TASK [debug var=result] ********************************************************
+ok: [tcox5.mylabserver.com] => {
+    "changed": false, 
+    "result": {
+        "changed": false, 
+        "examined": 211, 
+        "files": [
+            {
+                "atime": 1448740798.988532, 
+                "ctime": 1420651686.8908072, 
+                "dev": 51713, 
+                "gid": 0, 
+                "inode": 127449, 
+                "isblk": false, 
+                "ischr": false, 
+                "isdir": false, 
+                "isfifo": false, 
+                "isgid": false, 
+                "islnk": false, 
+                "isreg": true, 
+                "issock": false, 
+                "isuid": false, 
+                "mode": "0644", 
+                "mtime": 1420651686.8888073, 
+                "nlink": 1, 
+                "path": "/etc/fstab", 
+                "rgrp": true, 
+                "roth": true, 
+                "rusr": true, 
+                "size": 342, 
+                "uid": 0, 
+                "wgrp": false, 
+                "woth": false, 
+                "wusr": true, 
+                "xgrp": false, 
+                "xoth": false, 
+                "xusr": false
+            }
+        ], 
+        "matched": 1, 
+        "msg": ""
+    }
+}
+ 
+PLAY RECAP *********************************************************************
+tcox5.mylabserver.com      : ok=3    changed=0    unreachable=0    failed=0   
+ 

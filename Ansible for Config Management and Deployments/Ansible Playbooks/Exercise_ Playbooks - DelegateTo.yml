@@ -1,0 +1,69 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Create a playbook, using the 'DELEGATE TO' concepts from the video:
+
+- Uses local connection
+
+- Logs in to the remote system as 'test' user
+
+- Connects to the localhost
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Installs the 'Telnet Client' using the appropriate package module
+
+    [test@tcox3 Playbooks]$ vim local.yml 
+    [test@tcox3 Playbooks]$ cat local.yml 
+    --- # DELEGATE TO PLAYBOOK
+    - hosts: 127.0.0.1
+      user: test
+
+      sudo: yes
+      connection: ssh
+      tasks:
+        - name: Install Telnet Client
+          yum: pkg=telnet state=latest
+
+          delegate_to: 127.0.0.1
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook local.yml 
+
+    PLAY [127.0.0.1] ************************************************************** 
+
+    GATHERING FACTS *************************************************************** 
+    ok: [127.0.0.1]
+
+    TASK: [Install Telnet Client] ************************************************* 
+    ok: [127.0.0.1]
+
+    PLAY RECAP ******************************************************************** 
+    127.0.0.1                  : ok=2    changed=0    unreachable=0    failed=0
+

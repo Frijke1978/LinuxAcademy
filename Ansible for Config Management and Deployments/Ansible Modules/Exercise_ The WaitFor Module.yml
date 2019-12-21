@@ -1,0 +1,124 @@
+
+
+1. Run the appropriate ansible command to list all the hosts that are configured on your system for access by the control server. Display the ansible 'hosts' file in active use on the control server so that the hosts and groups are displayed.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+    [test@tcox3 ~]$ cat /etc/ansible/hosts
+
+    [local]
+
+    localhost
+
+     
+
+    [apacheweb]
+
+    tcox4.mylabserver.com
+
+    [appserver]
+
+    tcox5.mylabserver.com
+
+     
+
+2. Create a full Ansible Playbook called 'waitfor.yml' with the following characteristics, incorporating the WAITFOR module, display the playbook once created:
+
+- Connect to one (or a group) of hosts from the list displayed in Step #1 above
+
+- Force the playbook to run with 'sudo' privileges
+
+- Skip gathering facts on the remote system(s)
+
+- Using the appropriate package management module, install Apache Tomcat on the remote system(s)
+
+- Using the WAITFOR Module, wait for port 8080 to start listening for connections before continuing
+
+- Using the appropriate package maangement module, check to see if the 'lynx' browser is installed
+
+    [test@tcox3 Playbooks]$ vim waitfor.yml
+
+    [test@tcox3 Playbooks]$ cat waitfor.yml
+
+    --- # The Wait For Module
+
+    - hosts: apacheweb
+
+      sudo: yes
+
+      gather_facts: no
+
+      tasks:
+
+        - name: Installing Apache Tomcat
+
+          action: yum name=tomcat state=installed
+
+        - name: Waiting for Port 8080 to Listen
+
+          wait_for:
+
+            port: 8080
+
+            state: started
+
+        - name: Verifying Lynx Installation
+
+          action: yum name=lynx state=present
+
+ 
+
+3. Execute the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook waitfor.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Installing Apache Tomcat] **********************************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Waiting for Port 8080 to Listen] ***************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    (NOTE WHILE WAITING, THE FOLLOWING WAS DONE ON TCOX4) -------------------
+
+    [test@tcox4 ~]$ ps aux | grep tomcat
+
+    test      1620  0.0  0.0 112640   964 pts/0    R+   18:01   0:00 grep --color=auto tomcat
+
+     
+
+    [test@tcox4 ~]$ sudo systemctl start tomcat
+
+    ----------------------------------------------------------------------------------------
+
+     
+
+    TASK: [Verifying Lynx Installation] *******************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=3    changed=1    unreachable=0    failed=0
+
+     
+

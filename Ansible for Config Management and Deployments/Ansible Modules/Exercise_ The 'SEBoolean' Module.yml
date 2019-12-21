@@ -1,0 +1,45 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'seboolean' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Change the remote SELinux boolean value for 'http anonymous writes' to enabled, making it persistent on reboot
+[test@tcox3 Playbooks]$ vim seboolean.ym
+[test@tcox3 Playbooks]$ cat seboolean.ym
+--- # SEBOOLEAN MODULE EXAMPLE
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Change Boolean for Anonymous Writes on the Web Server
+      seboolean: name=httpd_anon_write state=yes persistent=yes
+ 
+4. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook seboolean.ym
+ 
+PLAY [apacheweb] **************************************************************
+ 
+TASK: [Change Boolean for Anonymous Writes on the Web Server] *****************
+changed: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=1    unreachable=0    failed=0
+ 
+[test@tcox3 Playbooks]$ ssh tcox4
+Last login: Wed Oct 14 15:07:16 2015 from ec2-52-91-231-138.compute-1.amazonaws.com
+[test@tcox4 ~]$ getsebool httpd_anon_write
+httpd_anon_write --> on

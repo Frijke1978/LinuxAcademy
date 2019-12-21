@@ -1,0 +1,36 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'service' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Sets a local variable in the appropriate section called 'playbook_version' set to some arbitrary value
+- Sets a 'fact' in the appropriate section called 'singlefact' to some other arbitrary value
+- Uses the debug statement to print out, in JSON format, both of those values
+[test@tcox3 Playbooks]$ vim setfact.yml
+[test@tcox3 Playbooks]$ cat setfact.yml
+--- # SET_FACT MODULE EXAMPLE
+- hosts: appserver
+  sudo: yes
+  user: test
+  connection: ssh
+  gather_facts: no
+  vars:
+    playbook_version: 0.1
+  tasks:
+    - name: Local Variable Display
+      set_fact:
+        singlefact: SOMETHING
+    - debug: msg={{ playbook_version }}
+    - debug: msg={{ singlefact }}

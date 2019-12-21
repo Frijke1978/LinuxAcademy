@@ -1,0 +1,97 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+ 
+
+3. Create a playbook, using the 'service' module that accomplishes the following:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Copies a file from a local directory called 'files' and a file called 'text4.txt' (created separately) to the /home/test directory remotely
+
+    [test@tcox3 Playbooks]$ vim copy.yml
+
+    [test@tcox3 Playbooks]$ cat copy.yml
+
+    --- # COPY MODULE EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      gather_facts: no
+
+      tasks:
+
+      - name: Copy from the files directory test file
+
+        action: copy src=files/test4.txt dest=/home/test/test4.txt owner=test group=test mode=0655 backup=yes
+
+    [test@tcox3 Playbooks]$ cd files
+
+    [test@tcox3 files]$ echo "this is text 4" > text4.txt
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook copy.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    TASK: [Copy from the files directory test file] *******************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=1    changed=1    unreachable=0    failed=0
+
+    (SECOND SERVER)
+
+    [test@tcox4 ~]$ ll
+
+    total 4
+
+    drwxr-xr-x. 2 test test  6 Sep 19 19:33 playbooks
+
+    -rw-r-xr-x. 1 test test 10 Oct  6 15:13 test4.txt
+
+ 

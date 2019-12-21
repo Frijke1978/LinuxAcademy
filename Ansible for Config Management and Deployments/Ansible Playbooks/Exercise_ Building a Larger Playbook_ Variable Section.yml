@@ -1,0 +1,66 @@
+1. Run the appropriate ansible command to list all the hosts that are configured on your system for access by the control server. Display the ansible 'hosts' file in active use on the control server so that the hosts and groups are displayed.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+[test@tcox3 ~]$ cat /etc/ansible/hosts
+[local]
+localhost
+[apacheweb]
+tcox4.mylabserver.com
+[appserver]
+tcox5.mylabserver.com
+
+2. Create a directory called 'conf'. Change to that directory and create two files, one called 'copyright.yml' and one called 'webdefaults.yml'. In the copyright file, create variables called 'message' and 'author' containing appropriate text of your choice. In the webdefaults file, create two variables called 'apache_version' and 'apache_mod_req' with values of your choice. Display the files.
+[test@tcox3 Playbooks]$ mkdir conf
+[test@tcox3 Playbooks]$ cd conf
+[test@tcox3 conf]$ cat
+copyright.yml    webdefaults.yml
+[test@tcox3 conf]$ cat copyright.yml
+---
+message: Copyright 2015 by Linux Academy
+author: Linux Academy
+[test@tcox3 conf]$ cat webdefaults.yml
+---
+apache_version: 2.6
+apache_mod_req: mod_ssl
+
+3. Change back to the 'Playbooks' directory and edit your 'myfirstplaybook.yml' file. Create a variables section that contains a local variable called 'playbook_version' and set it to a value appropriate to your desires. Display the file and then run the playbook.
+[test@tcox3 Playbooks]$ vim myfirstplaybook.yml
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+    playbook_version: 0.1b
+
+[test@tcox3 Playbooks]$ ansible-playbook myfirstplaybook.yml
+
+PLAY [apacheweb] **************************************************************
+
+PLAY RECAP ********************************************************************
+
+4. Edit the 'myfirstplaybook.yml' file and create another variables section that appropriately imports the external files that we created in Step #2. Display the newly edited file.
+[test@tcox3 Playbooks]$ vim myfirstplaybook.yml
+[test@tcox3 Playbooks]$ cat myfirstplaybook.yml
+--- # My First YAML Playbook for Ansible
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+    playbook_version: 0.1b
+  vars_files:
+    - conf/copyright.yml
+    - conf/webdefaults.yml
+
+5. Run the ansible playbook just edited and note the results.
+[test@tcox3 Playbooks]$ ansible-playbook myfirstplaybook.yml
+
+PLAY [apacheweb] **************************************************************
+
+PLAY RECAP ********************************************************************

@@ -1,0 +1,65 @@
+
+
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+[test@tcox3 ~]$ ansible all --list-hosts
+
+    tcox5.mylabserver.com
+
+    localhost
+
+    tcox4.mylabserver.com
+
+ 
+
+3. Create a playbook, using the 'LOOKUP' concepts from the video:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Skip gathering remote facts
+
+- Display a JSON formatted debug message that will show the remote environment HOME variable
+
+    [test@tcox3 Playbooks]$ vim lookup.yml
+    [test@tcox3 Playbooks]$ cat lookup.yml
+    --- # LOOKUP PLAYBOOK EXAMPLE
+    - hosts: apacheweb
+      user: test
+      sudo: yes
+      connection: ssh
+      gather_facts: no
+      tasks:
+        - debug: msg="{{ lookup('env','HOME') }} is the value listed"
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook lookup.yml
+
+    PLAY [apacheweb] **************************************************************
+
+    TASK: [debug msg="/home/test is the value listed"] ****************************
+    ok: [tcox4.mylabserver.com] => {
+        "msg": "/home/test is the value listed"
+    }
+
+    PLAY RECAP ********************************************************************
+    tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+

@@ -1,0 +1,57 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'script' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to one server or group from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Executes a local script called 'system_uptime.sh' on the remote system in Step #2, but ONLY if the log file 'uptime.log' exists already.
+[test@tcox3 Playbooks]$ vim script.yml
+[test@tcox3 Playbooks]$ cat script.yml
+--- # SCRIPT MODULE EXAMPLE
+- hosts: apacheweb
+  user: test
+  connection: ssh
+  sudo: yes
+  gather_facts: no
+  tasks:
+  - script: /home/test/Playbooks/system_uptime.sh creates=/home/test/uptime.log
+ 
+4. Create a script locally (on the control server) called 'system_uptime.sh'. This script should execute the uptime command and log the output to a file called 'uptime.log' in the /home/test directory.
+[test@tcox3 Playbooks]$ cat system_uptime.sh
+#!/bin/bash
+ 
+/usr/bin/uptime > /home/test/uptime.log
+ 
+5. Run the playbook and display the results both when the remote log files exists and when it does not.
+(WHEN FILE EXISTS)
+[test@tcox3 Playbooks]$ ansible-playbook script.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+TASK: [script /home/test/Playbooks/system_uptime.sh creates=/home/test/uptime.log] ***
+ok: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+ 
+(WHEN FILE DOES NOT)
+[test@tcox3 Playbooks]$ ansible-playbook script.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+TASK: [script /home/test/Playbooks/system_uptime.sh creates=/home/test/uptime.log] ***
+changed: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=1    unreachable=0    failed=0

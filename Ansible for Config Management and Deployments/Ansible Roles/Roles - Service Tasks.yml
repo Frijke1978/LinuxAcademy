@@ -1,0 +1,47 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a directory structure using the content directions from the Roles series and in our previous exercises, in the subdirectory called 'handlers' do the following:
+- Create a YAML File called 'main.yml'
+- Add a named task that uses the 'service' module to restart the service created from our previous exercise (httpd) 
+- Create a top level playbook called 'webservers.yml' that has the appropriate user (test), sudo rights, gathering facts set to no and runs over SSH and includes the 'webservers' role we created earlier
+[test@tcox3 roles]$ cat webservers/handlers/main.yml
+- name: Restart HTTPD
+  service: name=httpd state=restarted
+[test@tcox3 roles]$ cat webservers.yml
+--- # Master Playbook for Web Servers
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  roles:
+  - webservers
+ 
+ 
+4. Run the playbook and display the results.
+[test@tcox3 roles]$ ansible-playbook webservers.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+GATHERING FACTS ***************************************************************
+ok: [tcox4.mylabserver.com]
+ 
+TASK: [When did the ROLE start] ***********************************************
+ok: [tcox4.mylabserver.com]
+ 
+TASK: [redhat_webservers | Install (Red Hat/CentOS) Apache Web Server] ********
+ok: [tcox4.mylabserver.com]
+ 
+TASK: [redhat_webservers | Restarting the HTTPD Service] ********
+ok: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=2    changed=0    unreachable=0    failed=0

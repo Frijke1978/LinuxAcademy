@@ -1,0 +1,43 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+[test@tcox3 ~]$ ansible --version
+ansible 1.9.2
+  configured module search path = None
+ 
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+[test@tcox3 ~]$ ansible all --list-hosts
+    tcox5.mylabserver.com
+    localhost
+    tcox4.mylabserver.com
+ 
+3. Create a playbook, using the 'group' module that accomplishes the following:
+- Uses SSH
+- Logs in to the remote system as 'test' user
+- Connects to all the hosts from Step #2 above
+- The playbook runs as 'sudo'
+- Skip gathering remote facts
+- Adds a new group called 'newgroup' to the remote host(s) in Step#2 above if it does not exist
+[test@tcox3 Playbooks]$ vim group.yml
+[test@tcox3 Playbooks]$ cat group.yml
+--- # GROUP MODULE EXAMPLE
+- hosts: apacheweb
+  user: test
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+    - name: Add a new group called newgroup
+      group: name=newgroup state=absent
+ 
+4. Run the playbook and display the results.
+[test@tcox3 Playbooks]$ ansible-playbook group.yml
+ 
+PLAY [apacheweb] **************************************************************
+ 
+TASK: [Add a new group called newgroup] ***************************************
+ok: [tcox4.mylabserver.com]
+ 
+PLAY RECAP ********************************************************************
+tcox4.mylabserver.com      : ok=1    changed=0    unreachable=0    failed=0
+[test@tcox3 Playbooks]$ ssh tcox4
+[test@tcox4 ~]$ cat /etc/group | grep new
+newgroup:x:1008:

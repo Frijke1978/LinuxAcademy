@@ -1,0 +1,132 @@
+1. Verify that your ansible installation is available by displaying the version of ansible while logged in as the 'user' user.
+
+    [test@tcox3 ~]$ ansible --version
+
+    ansible 1.9.2
+
+      configured module search path = None
+
+ 
+
+2. Run the ansible command that lists all of the hosts configured in your control server 'hosts' file for the system.
+
+    [test@tcox3 ~]$ ansible all --list-hosts
+
+        tcox5.mylabserver.com
+
+        localhost
+
+        tcox4.mylabserver.com
+
+     
+
+3. Create a playbook, using the 'service' module that accomplishes the following:
+
+- Uses SSH
+
+- Logs in to the remote system as 'test' user
+
+- Connects to one server or group from Step #2 above
+
+- The playbook runs as 'sudo'
+
+- Installs the apache web server
+
+- Enables the apache web server service so it begins on reboot
+
+- Starts the apache web service
+
+    [test@tcox3 Playbooks]$ cat service.yml
+
+    --- # SERVICE MODULE EXAMPLE
+
+    - hosts: apacheweb
+
+      user: test
+
+      sudo: yes
+
+      connection: ssh
+
+      tasks:
+
+      - name: Install Web Server
+
+        action: yum name=httpd state=installed
+
+      - name: Start the Web Server
+
+        service: name=httpd state=started
+
+      - name: Enable HTTPD After Reboot
+
+        service: name=httpd enabled=yes
+
+ 
+
+4. Run the playbook and display the results.
+
+    [test@tcox3 Playbooks]$ ansible-playbook service.yml
+
+     
+
+    PLAY [apacheweb] **************************************************************
+
+     
+
+    GATHERING FACTS ***************************************************************
+
+    ok: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Install Web Server] ****************************************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Start the Web Server] **************************************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    TASK: [Enable HTTPD After Reboot] *********************************************
+
+    changed: [tcox4.mylabserver.com]
+
+     
+
+    PLAY RECAP ********************************************************************
+
+    tcox4.mylabserver.com      : ok=4    changed=3    unreachable=0    failed=0
+
+     
+
+    [test@tcox3 Playbooks]$ telnet tcox4 80
+
+    Trying 54.175.189.40...
+
+    Connected to tcox4.
+
+    Escape character is '^]'.
+
+    helo
+
+     
+
+     
+
+    501 Not Implemented
+
+     
+    Not Implemented
+
+    helo to / not supported.
+
+     
+
+     
+
+    Connection closed by foreign host.

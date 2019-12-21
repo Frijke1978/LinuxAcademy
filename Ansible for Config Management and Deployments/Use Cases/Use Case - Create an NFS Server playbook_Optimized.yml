@@ -1,0 +1,61 @@
+--- # NFS SERVER PLAYBOOK
+- hosts: frijke2c.mylabserver.com
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  vars:
+    distribution: RedHat
+    nfsutils_pkg: nfs-utils
+    nfslibs_pkg: nfs-utils-lib
+    nfsserver_service: nfs-server
+    nfslock_service: nfs-lock
+    nfsmap_service: nfs-idmap
+    rpcbind_service: rpcbind
+    export_path: /var/share
+  tasks:
+  - name: Install the NFS Server and Utilitieis, Services and Libraries
+    yum: pkg={{ item }} state=latest
+    with_items:
+    - "{{ nfsutils_pkg }}"
+    - "{{ nfslibs_pkg }}"
+  - name: Copy the export file to remote server
+    copy: src=files/exports.template dest=/etc/exports owner=root group=root mode=644
+    notify:
+    - StartServerServices
+    - InstallClientPackages
+    - CreateClientMount
+    - ClientMountServerResource
+    - TestServerAvailability
+  handlers:
+  - name: StartServerServices
+    service: name={{ item }} state=started
+    with_items:
+    - "{{ rpcbind_service }}"
+    - "{{ nfsserver_service }}"
+    - "{{ nfslock_service }}"
+    - "{{ nfsmap_service }}"
+  - name: InstallClientPackages
+    yum: pkg={{ item }} state=latest
+    with_items:
+    - "{{ nfsutils_pkg }}"
+    - "{{ nfslibs_pkg }}"
+    delegate_to: 127.0.0.1
+    notify: StartClientServices
+  - name: StartClientServices
+    service: name={{ item }} state=restarted
+    with_items:
+    - "{{ rpcbind_service }}"
+    - "{{ nfslock_service }}"
+    - "{{ nfsmap_service }}"
+    delegate_to: 127.0.0.1
+  - name: CreateClientMount
+    file: path={{ client_path }} state=directory mode=755
+    delegate_to: 127.0.0.1
+  - name: ClientMountServerResource
+#    mount: name=/mnt/remote src=/var/share fstype=nfs state=present
+    shell: mount -t nfs frijke2c.mylabserver.com:{{ export+path }} {{ client_path }}
+    register: result
+    delegate_to: 127.0.0.1
+  - name: TestServerAvailability
+    debug: var=result
