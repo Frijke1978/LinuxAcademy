@@ -1,0 +1,72 @@
+ChIco01!IdeXX
+
+
+yum install java-1.8.0-openjdk
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+wget  https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.3.rpm
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.0.0-x86_64.rpm
+rpm --install elasticsearch-6.2.3.rpm
+
+systemctl daemon-reload
+systemctl enable elasticsearch.service
+
+
+vim /etc/elasticsearch/elasticsearch.yml
+change node.name: master1
+       data.node: false
+	   
+	   	# network.host: ["localhost", "192.. priv ip"] -- to find priv ip: curl ifconfig.me
+		
+		network.host: ["0.0.0.0"]
+		http.port: 9200
+
+systemctl start elasticsearch
+
+
+2nd node:
+
+yum install java-1.8.0-openjdk
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+wget  https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.3.rpm
+rpm --install elasticsearch-6.2.3.rpm
+
+systemctl daemon-reload
+systemctl enable elasticsearch.service
+
+
+vim /etc/elasticsearch/elasticsearch.yml
+change node.name: data1
+       node.master: false
+	   
+	   network.host: ["localhost", "192.. priv ip"] -- to find priv ip: curl ifconfig.me
+
+
+       discovery.zen.ping.unicast.hosts: [" priv node1 "]
+
+systemctl restart elasticsearch
+
+
+3rd node:
+
+yum install java-1.8.0-openjdk
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+wget  https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.3.rpm
+rpm --install elasticsearch-6.2.3.rpm
+
+systemctl daemon-reload
+systemctl enable elasticsearch.service
+
+
+vim /etc/elasticsearch/elasticsearch.yml
+change node.name: data2
+       node.master: false
+	   
+	  network.host: ["localhost", "192.. priv ip"] -- to find priv ip: curl ifconfig.me
+
+       discovery.zen.ping.unicast.hosts: [" priv node1 "] 
+
+systemctl restart elasticsearch
+
+
+
+curl localhost:9200
