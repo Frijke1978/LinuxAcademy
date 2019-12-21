@@ -1,0 +1,17 @@
+ansible all --list-hosts
+
+  hosts (2):
+    localhost
+    frijke3c.mylabserver.com
+
+[ansible@frijke2c playbooks]$ ansible RedHats7 -m setup
+
+[ansible@frijke2c playbooks]$ ansible all -m setup -a 'filter="default"'
+
+[ansible@frijke2c facts]$ ansible all -m setup --tree facts
+# to see what facts are available to filter
+
+
+
+
+	

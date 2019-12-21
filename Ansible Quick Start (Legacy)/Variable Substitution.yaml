@@ -1,0 +1,60 @@
+[ansible@frijke2c ~]$ cd -
+/home/ansible/ansible/playbooks
+[ansible@frijke2c playbooks]$ vim vartest.yaml
+[ansible@frijke2c playbooks]$ ansible-playbook vartest.yaml
+
+   # Testing how vars work in the vars section of the playbook
+
+- hosts: '{{ myhosts }}'
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: '{{ gather }}'
+  vars:
+    myhosts: RedHats7
+    gather: yes
+    pkg: telnet
+  tasks:
+  - name: Install the indicated software
+    yum:
+      name: '{{ pkg }}'
+      state: latest
+
+	  
+[ansible@frijke2c playbooks]$ ansible-playbook vartest.yaml
+
+cleanup:
+
+[ansible@frijke2c playbooks]$ ansible RedHats7 -s -m yum -a "name=telnet state=absent"
+
+
+
+
+
+
+[ansible@frijke2c playbooks]$ cp vartest.yaml varsubst.yaml
+[ansible@frijke2c playbooks]$ vim varsubst.yaml
+
+[ansible@frijke2c playbooks]$ vim varsubst.yaml
+   # Testing how vars work in the vars section of the playbook
+
+- hosts: '{{ myhosts }}'
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: '{{ gather }}'
+  tasks:
+  - name: Install the indicated software
+    yum:
+      name: '{{ pkg }}'
+      state: latest
+
+	  
+[ansible@frijke2c playbooks]$ ansible-playbook varsubst.yaml --extra-vars "myhosts=RedHats7 gather=yes pkg=telnet"
+
+
+[ansible@frijke2c playbooks]$ ansible RedHats7 -s -m yum -a "name=telnet state=absent"
+
+
