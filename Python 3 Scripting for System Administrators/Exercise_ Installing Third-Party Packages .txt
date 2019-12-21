@@ -1,0 +1,9 @@
+$ mkdir venvs
+$ python3.6 -m venv venvs/pg
+$ source venvs/pg/bin/activate
+(pg) $ pip install psycopg2
+
+$ mkdir venvs
+$ python3.6 -m venv venvs/pg
+$ source venvs/pg/bin/activate
+(pg) $ pip install psycopg2
